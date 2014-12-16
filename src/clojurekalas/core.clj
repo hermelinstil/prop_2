@@ -100,12 +100,12 @@
 		(throw (IllegalArgumentException. "Input was not closeable"))))
 
 (defmacro select
-	[variable]
-	`(println (do (~variable))))
+	[args table]
+	`(get ~table 0))
 
 (defmacro from
-	[]
-	(+ 1 1))
+	[table]
+	`(get ~table 0))
 
 
 (defmacro destrTest
