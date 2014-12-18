@@ -98,8 +98,8 @@
 			
 		(throw (IllegalArgumentException. "Input was not closeable"))))
 
-(def persons '({:id 1 :name "olle"} {:id 2 :name "anna"} {:id 3 :name
-"isak"} {:id 4 :name "beatrice"}))
+(def persons '({:age 12 :id 2 :name "olle"} {:age 3 :id 1 :name "anna"} {:age 54 :id 3 :name
+"isak"} {:age 10796 :id 4 :name "beatrice"}))
 
 ;(defmacro select
 ;	[columns table]
@@ -109,25 +109,34 @@
 ;			(recur (conj ~resultTable ~(get (first table)) (get (rest ~table))))
 ;			(recur ~resultTable (get (rest ~table)))))))
 
-(defn selectColumns
-	[columns table]
+(defn query
+	[selectColumns whereCondition fromTable orderByCondition]
+	(vals (orderBy orderByCondition (where whereCondition (select selectColumns fromTable)))))
+
+(defn select
+	[columnNames table]
 	(loop [resultTable [] restTable table]
 		(if (zero? (count restTable))
 			resultTable
-		(if (<  (get (first restTable) :id) 2)
+			(recur (conj resultTable  (select-keys (first restTable) columnNames)) (rest restTable)))))
+
+(defn where
+	[[operator columnName value] table]
+	(loop [resultTable [] restTable table]
+		(if (zero? (count restTable))
+			resultTable
+		(if (operator (get (first restTable) columnName) value)
 			(recur (conj resultTable (first restTable)) (rest restTable))
 			(recur resultTable (rest restTable))))))
 
+
 (defn orderBy
 	[columnName table]
-	(let [resultTable (sorted-map)]
-		(doseq [person table]
-			(into resultTable {(get person columnName) person})
-			(println resultTable))))
+	(loop [resultTable (sorted-map) restTable table]
+		(if (zero? (count restTable))
+			resultTable
+			(recur (into resultTable {(get (first restTable) columnName) (first restTable)}) (rest restTable)))))
 
-(defmacro from
-	[table]
-	`(get ~table 0))
 
 (defmacro multibrackets
 	[[sym init] body]
