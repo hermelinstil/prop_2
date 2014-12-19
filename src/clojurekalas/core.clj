@@ -109,9 +109,9 @@
 ;			(recur (conj ~resultTable ~(get (first table)) (get (rest ~table))))
 ;			(recur ~resultTable (get (rest ~table)))))))
 
-(defn query
+(defmacro query
 	[selectColumns whereCondition fromTable orderByCondition]
-	(vals (orderBy orderByCondition (where whereCondition (select selectColumns fromTable)))))
+	`(vals (orderBy ~orderByCondition (where ~whereCondition (select ~selectColumns ~fromTable)))))
 
 (defn select
 	[columnNames table]
